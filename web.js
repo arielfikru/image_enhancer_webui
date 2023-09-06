@@ -34,10 +34,15 @@ async function downloadAndSaveImage(outputUrl) {
 
 app.post("/process-image", upload.single("image"), async (req, res) => {
     try {
+        const apiKey = req.body.apiKey; // Ambil API Key dari permintaan
+        if (!apiKey) {
+            return res.status(400).json({ error: "API Key is required." });
+        }
+
         const { md5Hash, content } = await getImageMd5Content(req.file.buffer);
         const client = axios.create({
             baseURL: BASE_URL,
-            headers: { Authorization: `Bearer ${API_KEY}` },
+            headers: { Authorization: `Bearer ${apiKey}` }, // Gunakan API Key dari permintaan
             timeout: TIMEOUT,
         });
 
@@ -69,12 +74,12 @@ app.post("/process-image", upload.single("image"), async (req, res) => {
 
             if (getTaskResponse.data.status === "completed") {
                 console.log("Processing completed.")
-                //console.log("Output url: " + getTaskResponse.data.result.output_url);
                 const processedImageBuffer = await downloadAndSaveImage(getTaskResponse.data.result.output_url);
                 const formattedDate = moment().format("MM-DD-YYYY");
-                const outputImagePath = path.join(__dirname, "public", `output_${formattedDate}.jpg`);
+                const formattedTime = moment().format("HH-mm-ss");
+                const outputImagePath = path.join(__dirname, "public", `output_${formattedDate}_${formattedTime}.jpg`);
                 await fs.writeFile(outputImagePath, processedImageBuffer);
-                return res.json(`/output.jpg`);
+                return res.json(`/output_${formattedDate}_${formattedTime}.jpg`);                
             } else {
                 if (getTaskResponse.data.status !== "processing") {
                     console.error("Found illegal status: " + getTaskResponse.data.status);
