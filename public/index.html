@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing</title>
+</head>
+<body>
+    <h1>Image Processing</h1>
+
+    <input type="file" id="imageInput" accept="image/jpeg">
+    <button id="submitButton">Submit</button>
+
+    <hr>
+
+    <h2>Output Image</h2>
+    <img id="outputImage" src="" alt="Processed Image" width="300">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const imageInput = document.getElementById("imageInput");
+            const submitButton = document.getElementById("submitButton");
+            const outputImage = document.getElementById("outputImage");
+
+            submitButton.addEventListener("click", async () => {
+                const selectedFile = imageInput.files[0];
+                if (!selectedFile) {
+                    alert("Please select an image file.");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("image", selectedFile);
+
+                try {
+                    const response = await fetch("/process-image", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const imageUrl = await response.json();
+                        outputImage.src = imageUrl;
+                    } else {
+                        alert("Image processing failed.");
+                    }
+                } catch (error) {
+                    console.error("Error processing image:", error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
