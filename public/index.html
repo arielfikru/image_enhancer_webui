@@ -8,6 +8,10 @@
 <body>
     <h1>Image Processing</h1>
 
+    <label for="apiKey">API Key:</label>
+    <input type="text" id="apiKey" placeholder="Enter your API Key">
+    <button id="submitApiKey">Submit API Key</button>
+
     <input type="file" id="imageInput" accept="image/jpeg">
     <button id="submitButton">Submit</button>
 
@@ -21,7 +25,9 @@
             const imageInput = document.getElementById("imageInput");
             const submitButton = document.getElementById("submitButton");
             const outputImage = document.getElementById("outputImage");
+            const apiKeyInput = document.getElementById("apiKey");
 
+            // Menambahkan event listener pada tombol "Submit"
             submitButton.addEventListener("click", async () => {
                 const selectedFile = imageInput.files[0];
                 if (!selectedFile) {
@@ -29,8 +35,15 @@
                     return;
                 }
 
+                // Menambahkan API Key ke dalam FormData
+                const apiKey = apiKeyInput.value;
+                if (!apiKey) {
+                    alert("Please enter your API Key.");
+                    return;
+                }
                 const formData = new FormData();
                 formData.append("image", selectedFile);
+                formData.append("apiKey", apiKey);
 
                 try {
                     const response = await fetch("/process-image", {
